@@ -3,361 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Inscripción - FES Acatlán</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        unamBlue: '#002B5C',
-                        unamGold: '#D4AF37',
-                        unamBlueLight: '#003b80'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Sistema de Préstamo de Materiales - FES Acatlán</title>
     <style>
-        /* Transiciones suaves para las vistas */
+        :root {
+            --unam-blue: #002B5C;
+            --unam-gold: #D4AF37;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--unam-blue);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--unam-gold);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-container h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        /* Main Content Container */
+        .container {
+            flex: 1;
+            display: flex;
+            padding: 2rem;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 4px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .nav-item.active {
+            background-color: #f0f4f8;
+            border-left-color: var(--unam-gold);
+            color: var(--unam-blue);
+        }
+
+        /* Main Workspace */
+        .workspace {
+            flex: 1;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 2rem;
+            overflow: hidden;
+        }
+
         .view-section {
             display: none;
             animation: fadeIn 0.3s ease-in-out;
         }
+
         .view-section.active {
             display: block;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Toast Notification System */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 50;
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            color: var(--unam-blue);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Forms and Inputs */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--unam-blue);
+            box-shadow: 0 0 0 2px rgba(0, 43, 92, 0.1);
+        }
+
+        .input-group {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 1rem;
         }
-        .toast {
-            background-color: #333;
+
+        .input-group .form-control {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--unam-blue);
             color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.3s ease-out;
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(0);
+
+        .btn-primary:hover {
+            background-color: #001f44;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        /* Cards for Info */
+        .info-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-label {
+            width: 150px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .info-value {
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-valid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-invalid {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Login Screen specific */
+        .login-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/FES_Acatlan.jpg/1200px-FES_Acatlan.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 43, 92, 0.7);
+        }
+
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 1001;
+            text-align: center;
+            border-top: 5px solid var(--unam-gold);
+        }
+        
+        .login-card h2 {
+            color: var(--unam-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Receipt View */
+        .receipt-container {
+            border: 2px dashed var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .receipt-icon {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-dark);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            margin-top: auto;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body>
 
-    <!-- Navbar Institucional -->
-    <nav class="bg-unamBlue text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-3">
-                    <!-- Escudo Simulado (Círculo Dorado) -->
-                    <div class="w-10 h-10 bg-unamGold rounded-full flex items-center justify-center font-bold text-unamBlue">
-                        UNAM
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg leading-tight">FES Acatlán</h1>
-                        <p class="text-xs text-unamGold">Sistema de Inscripción</p>
-                    </div>
-                </div>
-                <!-- Menú de Navegación de Sprints -->
-                <div class="hidden md:flex space-x-2">
-                    <button onclick="switchTab('sprint1')" id="tab-sprint1" class="tab-btn px-4 py-2 rounded-md bg-unamGold text-unamBlue font-semibold transition-colors">Sprint 1: Acceso</button>
-                    <button onclick="switchTab('sprint2')" id="tab-sprint2" class="tab-btn px-4 py-2 rounded-md hover:bg-unamBlueLight transition-colors">Sprint 2: Validación</button>
-                    <button onclick="switchTab('sprint3')" id="tab-sprint3" class="tab-btn px-4 py-2 rounded-md hover:bg-unamBlueLight transition-colors">Sprint 3: Altas/Bajas</button>
-                </div>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-overlay"></div>
+        <div class="login-card">
+            <h2>Sistema de Préstamo<br>FES Acatlán</h2>
+            <div class="form-group" style="text-align: left;">
+                <label for="biblioUser">Usuario (Bibliotecario)</label>
+                <input type="text" id="biblioUser" class="form-control" placeholder="Ingrese número de trabajador" value="trab-8841">
             </div>
+            <div class="form-group" style="text-align: left;">
+                <label for="biblioPass">Contraseña</label>
+                <input type="password" id="biblioPass" class="form-control" placeholder="Contraseña" value="admin123">
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="login()">Iniciar Sesión</button>
         </div>
-        <!-- Menú Móvil -->
-        <div class="md:hidden bg-unamBlueLight flex justify-around p-2 text-sm text-center">
-             <button onclick="switchTab('sprint1')" class="px-2 py-1 font-semibold text-unamGold">S1</button>
-             <button onclick="switchTab('sprint2')" class="px-2 py-1">S2</button>
-             <button onclick="switchTab('sprint3')" class="px-2 py-1">S3</button>
+    </div>
+
+    <!-- MAIN APP -->
+    <header>
+        <div class="logo-container">
+            <h1>FES Acatlán - Biblioteca Central</h1>
         </div>
-    </nav>
+        <div class="user-info">
+            <strong>Bibliotecario:</strong> Juan Gómez<br>
+            <span id="currentDate"></span>
+        </div>
+    </header>
 
-    <!-- Contenedor Principal -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="nav-item active" onclick="switchTab('tab-validar', this)">1.0 Validar Usuario</div>
+            <div class="nav-item" id="nav-prestamo" onclick="switchTab('tab-prestamo', this)" style="pointer-events: none; opacity: 0.5;">2.0 / 3.0 Préstamo</div>
+            <div class="nav-item" id="nav-comprobante" onclick="switchTab('tab-comprobante', this)" style="pointer-events: none; opacity: 0.5;">4.0 Comprobante</div>
+        </aside>
 
-        <!-- ================= SPRINT 1: Autenticación y Selección ================= -->
-        <section id="sprint1" class="view-section active">
-            <div class="mb-6 border-b pb-2">
-                <h2 class="text-2xl font-bold text-unamBlue">Sprint 1: Autenticación y Selección</h2>
-                <p class="text-gray-500 text-sm">Basado en el proceso 1.0 (Validar estado alumno) y 2.0 (Verificar estatus).</p>
-            </div>
-
-            <!-- Formulario de Login -->
-            <div id="login-container" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-                <h3 class="text-xl font-bold text-center mb-6 text-unamBlue">Ingreso al Sistema</h3>
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Cuenta</label>
-                        <input type="text" placeholder="Ej. 319283749" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-unamGold focus:border-unamGold outline-none transition" required>
-                        <p class="text-xs text-gray-400 mt-1">Diccionario: Numérico (9 dígitos)</p>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                        <input type="password" placeholder="••••••••" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-unamGold focus:border-unamGold outline-none transition" required>
-                    </div>
-                    <button type="submit" class="w-full bg-unamBlue hover:bg-unamBlueLight text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md">
-                        Iniciar Sesión
-                    </button>
-                </form>
-            </div>
-
-            <!-- Oferta Académica (Oculta hasta el login) -->
-            <div id="oferta-container" class="hidden">
-                <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-lg">
-                    <div class="flex">
-                        <div class="ml-3">
-                            <p class="text-sm text-green-700 font-medium">Autenticación exitosa. Bienvenido, Santiago Gonzalez Chavez.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-unamBlue">Oferta Académica Disponible</h3>
-                        <span class="text-xs font-semibold bg-unamGold text-unamBlue px-2 py-1 rounded-full">Semestre: 5</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 text-sm">
-                                    <th class="py-3 px-6">Clave Grupo</th>
-                                    <th class="py-3 px-6">Asignatura</th>
-                                    <th class="py-3 px-6">Semestre Req.</th>
-                                    <th class="py-3 px-6">Cupo (Act/Max)</th>
-                                    <th class="py-3 px-6 text-center">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-sm divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="py-3 px-6 font-medium text-unamBlue">1501-A</td>
-                                    <td class="py-3 px-6">Ingeniería de Software</td>
-                                    <td class="py-3 px-6">5</td>
-                                    <td class="py-3 px-6"><span class="text-green-600 font-bold">12</span> / 30</td>
-                                    <td class="py-3 px-6 text-center">
-                                        <button onclick="showToast('Inscripción pre-registrada. Ve al Sprint 2 para validar.')" class="bg-unamGold hover:bg-yellow-500 text-unamBlue font-bold py-1 px-3 rounded text-xs transition">Inscribir</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="py-3 px-6 font-medium text-unamBlue">1502-B</td>
-                                    <td class="py-3 px-6">Bases de Datos Avanzadas</td>
-                                    <td class="py-3 px-6">5</td>
-                                    <td class="py-3 px-6"><span class="text-red-600 font-bold">30</span> / 30</td>
-                                    <td class="py-3 px-6 text-center">
-                                        <button disabled class="bg-gray-300 text-gray-500 font-bold py-1 px-3 rounded text-xs cursor-not-allowed">Lleno</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ================= SPRINT 2: Validación y Comprobante ================= -->
-        <section id="sprint2" class="view-section">
-            <div class="mb-6 border-b pb-2">
-                <h2 class="text-2xl font-bold text-unamBlue">Sprint 2: Validación y Emisión</h2>
-                <p class="text-gray-500 text-sm">Basado en el proceso 3.0 (Registrar inscripción) y 4.0 (Generar comprobante).</p>
-            </div>
-
-            <!-- Panel de Validación -->
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white p-6 rounded-xl shadow border border-gray-100">
-                    <h4 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Validación Académica
-                    </h4>
-                    <ul class="space-y-2 text-sm">
-                        <li class="flex justify-between border-b pb-1">
-                            <span class="text-gray-600">Seriación (Prerrequisitos):</span>
-                            <span class="font-semibold text-green-600">Aprobada</span>
-                        </li>
-                        <li class="flex justify-between border-b pb-1">
-                            <span class="text-gray-600">Promedio Histórico:</span>
-                            <span class="font-semibold">8.5</span>
-                        </li>
-                        <li class="flex justify-between pb-1">
-                            <span class="text-gray-600">Estatus de Transacción:</span>
-                            <span class="font-semibold text-unamBlue bg-blue-100 px-2 rounded">Pendiente de Confirmación</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Bitácora de Transacción -->
-                <div class="bg-unamBlue text-white p-6 rounded-xl shadow relative overflow-hidden">
-                    <div class="absolute top-0 right-0 opacity-10 transform translate-x-4 -translate-y-4">
-                        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
-                    <h4 class="font-bold text-unamGold mb-4 z-10 relative">TransaccionMovimiento</h4>
-                    <div class="space-y-3 text-sm z-10 relative">
-                        <p><span class="text-blue-200">Tipo de Movimiento:</span> Inscripción Ordinaria</p>
-                        <p><span class="text-blue-200">Clave Grupo:</span> 1501-A</p>
-                        <p><span class="text-blue-200">Fecha/Hora:</span> <span id="currentDate">29/10/2026 11:15</span></p>
-                        
-                        <button onclick="showToast('Generando PDF... Descarga iniciada con Folio FES-2026-9921')" class="mt-4 w-full bg-unamGold hover:bg-yellow-500 text-unamBlue font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 flex justify-center items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Descargar Comprobante PDF
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ================= SPRINT 3: Altas, Bajas y Cambios ================= -->
-        <section id="sprint3" class="view-section">
-            <div class="mb-6 border-b pb-2">
-                <h2 class="text-2xl font-bold text-unamBlue">Sprint 3: Altas, Bajas y Cambios</h2>
-                <p class="text-gray-500 text-sm">Periodo extemporáneo basado en CalendarioInscripcion.</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-                <div class="px-6 py-4 border-b border-gray-200 bg-red-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-red-800">Mi Horario Actual (Modo Edición)</h3>
-                    <span class="text-xs font-semibold bg-red-100 text-red-800 px-2 py-1 rounded border border-red-200">Periodo de Cambios Activo</span>
-                </div>
+        <!-- Workspace -->
+        <main class="workspace">
+            
+            <!-- VIEW 1: Validar Usuario -->
+            <div id="tab-validar" class="view-section active">
+                <h2 class="section-title">1.0 Validar Estado del Usuario</h2>
                 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-600 text-sm">
-                                <th class="py-3 px-6">Clave</th>
-                                <th class="py-3 px-6">Asignatura</th>
-                                <th class="py-3 px-6">FolioTicket</th>
-                                <th class="py-3 px-6 text-right">Acciones Extemporáneas</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm divide-y divide-gray-200" id="scheduleBody">
-                            <tr class="hover:bg-gray-50 transition" id="row-1501">
-                                <td class="py-3 px-6 font-medium">1501-A</td>
-                                <td class="py-3 px-6">Ingeniería de Software</td>
-                                <td class="py-3 px-6 text-gray-500 font-mono text-xs">FES-2026-9921</td>
-                                <td class="py-3 px-6 text-right space-x-2">
-                                    <button onclick="showToast('Buscando grupos disponibles para cambio...')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-1 px-3 rounded text-xs transition border border-blue-300">Cambiar</button>
-                                    <button onclick="removeRow('row-1501')" class="bg-red-100 hover:bg-red-200 text-red-800 font-semibold py-1 px-3 rounded text-xs transition border border-red-300">Dar de Baja</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50 transition" id="row-1505">
-                                <td class="py-3 px-6 font-medium">1505-C</td>
-                                <td class="py-3 px-6">Redes de Computadoras</td>
-                                <td class="py-3 px-6 text-gray-500 font-mono text-xs">FES-2026-8812</td>
-                                <td class="py-3 px-6 text-right space-x-2">
-                                    <button onclick="showToast('Buscando grupos disponibles para cambio...')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-1 px-3 rounded text-xs transition border border-blue-300">Cambiar</button>
-                                    <button onclick="removeRow('row-1505')" class="bg-red-100 hover:bg-red-200 text-red-800 font-semibold py-1 px-3 rounded text-xs transition border border-red-300">Dar de Baja</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="form-group">
+                    <label>Escanear credencial o ingresar No. de Cuenta</label>
+                    <div class="input-group">
+                        <input type="text" id="id_usuario" class="form-control" placeholder="Ej. 318000123" value="318000123">
+                        <button class="btn btn-primary" onclick="validarUsuario()">Verificar Estatus</button>
+                    </div>
                 </div>
-                <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-                    <button onclick="showToast('Abriendo catálogo de materias para Alta...')" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow transition">
-                        + Nueva Alta
-                    </button>
+
+                <div id="userInfoCard" class="info-card" style="display: none;">
+                    <h3 style="margin-bottom: 1rem; color: var(--unam-blue);">Perfil de Usuario</h3>
+                    <div class="info-row">
+                        <div class="info-label">Nombre:</div>
+                        <div class="info-value">González Chávez Santiago</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Carrera:</div>
+                        <div class="info-value">MAC</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Estatus Multas:</div>
+                        <div class="info-value"><span class="status-badge status-valid">Estatus Válido (Sin Adeudos)</span></div>
+                    </div>
+                    <div class="info-row" style="margin-top: 1rem;">
+                        <button class="btn btn-success" onclick="continuarAPrestamo()">Continuar a Préstamo (2.0) &rarr;</button>
+                    </div>
                 </div>
             </div>
-        </section>
-    </main>
 
-    <!-- Contenedor para notificaciones (Reemplazo de Alert) -->
-    <div id="toast-container"></div>
+            <!-- VIEW 2: Prestar Material -->
+            <div id="tab-prestamo" class="view-section">
+                <h2 class="section-title">2.0 Verificar Estatus del Material</h2>
+                
+                <div class="info-card" style="background-color: #e8f4fd;">
+                    <strong>Usuario Activo:</strong> 318000123 - González Chávez Santiago
+                </div>
+
+                <div class="form-group">
+                    <label>Leer etiqueta RFID del Libro</label>
+                    <div class="input-group">
+                        <input type="text" id="rfid_tag" class="form-control" placeholder="Acerque el libro al lector..." value="RFID-998877">
+                        <button class="btn btn-primary" onclick="verificarMaterial()">Consultar Inventario</button>
+                    </div>
+                </div>
+
+                <div id="materialInfoCard" class="info-card" style="display: none;">
+                    <h3 style="margin-bottom: 1rem; color: var(--unam-blue);">Datos del Libro (Inventario)</h3>
+                    <div class="info-row">
+                        <div class="info-label">Título:</div>
+                        <div class="info-value">Ingeniería de Software (9na Edición)</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Autor:</div>
+                        <div class="info-value">Ian Sommerville</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Disponibilidad:</div>
+                        <div class="info-value"><span class="status-badge status-valid">Disponible en estantería</span></div>
+                    </div>
+                    
+                    <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    
+                    <h3 style="margin-bottom: 1rem; color: var(--unam-blue);">3.0 Registrar Préstamo</h3>
+                    <div class="info-row">
+                        <div class="info-label">Límite de libros:</div>
+                        <div class="info-value">1 / 3 permitidos</div>
+                    </div>
+                    <div class="info-row" style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="registrarPrestamo()">Generar Número de Préstamo (Transacción)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: Comprobante -->
+            <div id="tab-comprobante" class="view-section">
+                <h2 class="section-title">4.0 Generar Comprobante</h2>
+                
+                <div class="receipt-container">
+                    <div class="receipt-icon">&#10004;</div>
+                    <h3 style="color: var(--unam-blue); margin-bottom: 1rem;">¡Préstamo Registrado con Éxito!</h3>
+                    
+                    <div style="text-align: left; background: var(--bg-color); padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                        <p><strong>Folio de Préstamo:</strong> ACAT-2026-001</p>
+                        <p><strong>Fecha Solicitud:</strong> <span id="fechaSol"></span></p>
+                        <p><strong>Fecha Entrega (Devolución):</strong> <span id="fechaDev"></span></p>
+                        <hr style="margin: 0.5rem 0; border: none; border-top: 1px dashed #ccc;">
+                        <p><strong>Usuario:</strong> 318000123 (MAC)</p>
+                        <p><strong>Material:</strong> RFID-998877 (Ingeniería de Software)</p>
+                    </div>
+
+                    <button class="btn btn-success" style="margin-right: 1rem;">Descargar Comprobante Digital (PDF)</button>
+                    <button class="btn btn-primary" onclick="reiniciarSistema()">Nuevo Préstamo</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer>
+        &copy; 2026 Universidad Nacional Autónoma de México - FES Acatlán. Ingeniería de Software.
+    </footer>
 
     <script>
-        // Lógica de navegación entre Sprints
-        function switchTab(tabId) {
-            // Ocultar todas las secciones
-            document.querySelectorAll('.view-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            // Mostrar la seleccionada
+        // Set date
+        const d = new Date();
+        document.getElementById('currentDate').innerText = d.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Logic
+        function login() {
+            document.getElementById('loginScreen').style.display = 'none';
+        }
+
+        function switchTab(tabId, element) {
+            // Hide all tabs
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Remove active class from nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // Show target
             document.getElementById(tabId).classList.add('active');
-
-            // Actualizar estilos del menú
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-unamGold', 'text-unamBlue');
-                btn.classList.add('hover:bg-unamBlueLight');
-            });
-            
-            const activeBtn = document.getElementById('tab-' + tabId);
-            if(activeBtn) {
-                activeBtn.classList.remove('hover:bg-unamBlueLight');
-                activeBtn.classList.add('bg-unamGold', 'text-unamBlue');
-            }
+            if(element) element.classList.add('active');
         }
 
-        // Lógica del Formulario de Login (Sprint 1)
-        function handleLogin(event) {
-            event.preventDefault(); // Evita que la página se recargue
-            
-            // Ocultar login, mostrar panel de oferta
-            document.getElementById('login-container').style.display = 'none';
-            const ofertaContainer = document.getElementById('oferta-container');
-            ofertaContainer.classList.remove('hidden');
-            ofertaContainer.style.animation = 'fadeIn 0.5s ease-in-out';
+        function validarUsuario() {
+            // Simula consulta D1 y D4
+            document.getElementById('userInfoCard').style.display = 'block';
         }
 
-        // Simulación de Baja de Materia (Sprint 3)
-        function removeRow(rowId) {
-            const row = document.getElementById(rowId);
-            row.style.opacity = '0.5';
-            row.style.backgroundColor = '#fee2e2'; // red-50
-            
-            setTimeout(() => {
-                row.remove();
-                showToast("Movimiento registrado: Baja exitosa.");
-            }, 600);
+        function continuarAPrestamo() {
+            const navPrestamo = document.getElementById('nav-prestamo');
+            navPrestamo.style.pointerEvents = 'auto';
+            navPrestamo.style.opacity = '1';
+            switchTab('tab-prestamo', navPrestamo);
         }
 
-        // Sistema de Notificaciones (Reemplazo obligatorio de window.alert)
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast bg-unamBlue border-l-4 border-unamGold text-white shadow-lg flex items-center justify-between p-4 min-w-[300px]';
-            
-            toast.innerHTML = `
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" class="ml-4 text-gray-300 hover:text-white">&times;</button>
-            `;
-            
-            container.appendChild(toast);
-            
-            // Animación de entrada
-            setTimeout(() => toast.classList.add('show'), 10);
-            
-            // Auto eliminar después de 4 segundos
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+        function verificarMaterial() {
+            // Simula consulta D2 (Inventario)
+            document.getElementById('materialInfoCard').style.display = 'block';
         }
 
-        // Inicializar fecha actual para el ticket
-        const dateSpan = document.getElementById('currentDate');
-        if(dateSpan) {
-            const now = new Date();
-            dateSpan.textContent = now.toLocaleDateString() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+        function registrarPrestamo() {
+            // Simula Proceso 3.0 y transaccion a D3
+            const navComprobante = document.getElementById('nav-comprobante');
+            navComprobante.style.pointerEvents = 'auto';
+            navComprobante.style.opacity = '1';
+            
+            // Calc dates
+            const today = new Date();
+            const dev = new Date(today);
+            dev.setDate(dev.getDate() + 7); // 7 dias de prestamo
+            
+            document.getElementById('fechaSol').innerText = today.toLocaleDateString('es-MX');
+            document.getElementById('fechaDev').innerText = dev.toLocaleDateString('es-MX');
+            
+            switchTab('tab-comprobante', navComprobante);
+        }
+
+        function reiniciarSistema() {
+            document.getElementById('userInfoCard').style.display = 'none';
+            document.getElementById('materialInfoCard').style.display = 'none';
+            
+            document.getElementById('nav-prestamo').style.pointerEvents = 'none';
+            document.getElementById('nav-prestamo').style.opacity = '0.5';
+            
+            document.getElementById('nav-comprobante').style.pointerEvents = 'none';
+            document.getElementById('nav-comprobante').style.opacity = '0.5';
+            
+            const navValidar = document.querySelector('.nav-item');
+            switchTab('tab-validar', navValidar);
         }
     </script>
 </body>
